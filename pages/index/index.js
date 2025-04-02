@@ -357,22 +357,145 @@ Page({
     });
   },
   // 去结算
-  goToCheckout() {
-    if (this.data.totalCount > 0) {
-      // 这里可以跳转到结算页面
-      wx.showToast({
-        title: '准备跳转到结算页面',
-        icon: 'none'
-      });
-    } else {
+  // 在index.js中添加下单逻辑
+  
+  // 去结算按钮点击事件
+  goToCheckout: function() {
+    if (this.data.totalCount <= 0) {
       wx.showToast({
         title: '请先选择商品',
         icon: 'none'
       });
+      return;
+    }
+    
+    // 准备订单数据
+    let orderItems = [];
+    let totalPrice = 0;
+    
+    this.data.categories.forEach((category, categoryIndex) => {
+      this.data.allDishes[categoryIndex].forEach(dish => {
+        if (dish.count > 0) {
+          // 计算每个菜品的总价
+          const itemPrice = parseFloat(dish.price) * dish.count;
+          totalPrice += itemPrice;
+          
+          orderItems.push({
+            dish_id: dish.id,
+            dish_name: dish.name,
+            quantity: dish.count,
+            price: parseFloat(dish.price),
+            total_item_price: itemPrice
+          });
+        }
+      });
+    });
+    
+    // 确保总价是数字并格式化为两位小数
+    totalPrice = parseFloat(totalPrice.toFixed(2));
+    
+    // 构建订单请求数据
+    const orderData = {
+      items: orderItems,
+      total_price: totalPrice
+    };
+    
+    console.log('准备提交的订单数据:', orderData);
+    
+    // 发送创建订单请求
+    wx.showLoading({
+      title: '提交订单中',
+    });
+    
+    // 使用模拟数据进行测试，避免后端API未就绪导致的问题
+    const useMockData = true; // 设置为true使用模拟数据，后端API准备好后改为false
+    
+    if (useMockData) {
+      // 模拟成功响应
+      setTimeout(() => {
+        // 先隐藏加载提示
+        wx.hideLoading();
+        
+        // 生成模拟订单数据
+        const mockOrder = {
+          id: 'order_' + Date.now(),
+          order_no: 'O' + Date.now(),
+          status: 'pending',
+          total_price: totalPrice,
+          items: orderItems.map(item => ({
+            dish_name: item.dish_name,
+            quantity: item.quantity,
+            price: item.price
+          })),
+          created_at: new Date().toISOString()
+        };
+        
+        // 保存到本地存储
+        const orders = wx.getStorageSync('orders') || [];
+        orders.unshift(mockOrder);
+        wx.setStorageSync('orders', orders);
+        
+        // 跳转到订单页面
+        wx.switchTab({
+          url: '/pages/orders/orders'
+        });
+      }, 1000);
+    } else {
+      // 原有的API请求代码
+      wx.request({
+        url: 'http://localhost:8000/api/orders/',
+        method: 'POST',
+        header: {
+          'Content-Type': 'application/json',
+          'Authorization': `Token ${wx.getStorageSync('token')}` // 假设使用Token认证
+        },
+        data: orderData,
+        success: (res) => {
+          wx.hideLoading(); // 确保在success回调中调用hideLoading
+          
+          if (res.statusCode === 201) { // 创建成功
+            // 清空购物车
+            this.clearCart();
+            
+            wx.showToast({
+              title: '下单成功',
+              icon: 'success'
+            });
+            
+            // 跳转到订单页面
+            wx.switchTab({
+              url: '/pages/orders/orders'
+            });
+          } else {
+            wx.showToast({
+              title: '下单失败: ' + (res.data.message || '未知错误'),
+              icon: 'none'
+            });
+          }
+        },
+        fail: (err) => {
+          wx.hideLoading(); // 确保在fail回调中调用hideLoading
+          
+          console.error('请求失败', err);
+          wx.showToast({
+            title: '网络错误',
+            icon: 'none'
+          });
+        }
+      });
     }
   },
+  
+  // 根据ID查找菜品
+  findDishById: function(id) {
+    for (let categoryIndex in this.data.allDishes) {
+      const dish = this.data.allDishes[categoryIndex].find(d => d.id === id);
+      if (dish) return dish;
+    }
+    return null;
+  },
   // 更新购物车
-  updateCart() {
+  updateCart: function() { // 修改为标准的函数定义方式
     let totalCount = 0;
     let totalPrice = 0;
 

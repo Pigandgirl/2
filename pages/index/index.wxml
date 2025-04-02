@@ -79,7 +79,7 @@
         </view>
       </view>
       <scroll-view class="cart-panel-list" scroll-y>
-        <block wx:for="{{categories}}" wx:for-item="category" wx:for-index="categoryIndex">
+        <block wx:for="{{categories}}" wx:for-item="category" wx:for-index="categoryIndex" wx:key="id">
           <block wx:for="{{allDishes[categoryIndex]}}" wx:key="id" wx:if="{{item.count > 0}}">
             <view class="cart-panel-item">
               <text class="cart-item-name">{{item.name}}</text>
