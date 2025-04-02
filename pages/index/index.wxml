@@ -1,37 +1,55 @@
 <!--index.wxml-->
-<scroll-view class="scrollarea" scroll-y type="list">
-  <view class="container">
-    <!-- 轮播图部分 -->
-    <view class="swiper-container">
-      <swiper class="swiper" autoplay interval="5000" circular indicator-dots indicator-active-color="#FFFFFF" indicator-color="rgba(255, 255, 255, 0.6)">
-        <swiper-item wx:for="{{swiperList}}" wx:key="id">
-          <image src="{{item.url}}" mode="aspectFill"></image>
-        </swiper-item>
-      </swiper>
-      <view class="restaurant-info">
-        <image class="logo" src="/images/logo.png"></image>
-        <text class="restaurant-name">米萌酒家</text>
-      </view>
+<view class="container">
+  <!-- 轮播图部分 -->
+  <view class="swiper-container">
+    <swiper class="swiper" autoplay interval="5000" circular indicator-dots indicator-active-color="#FFFFFF" indicator-color="rgba(255, 255, 255, 0.6)">
+      <swiper-item wx:for="{{swiperList}}" wx:key="id">
+        <image src="{{item.url}}" mode="aspectFill"></image>
+      </swiper-item>
+    </swiper>
+    <view class="restaurant-info">
+      <image class="logo" src="/images/logo.png"></image>
+      <text class="restaurant-name">米萌酒家</text>
     </view>
+    <view class="opening-hours">
+      <text class="hours-text">开店时间 10:00-22:00</text>
+    </view>
+    <view class="group-buy-info">
+      <text class="group-buy-text">支持美团、抖音、微信小程序的团购下单</text>
+    </view>
+    <view class="parking-discount">
+      <text class="parking-text">进店消费即可免停车费，消费满500元打8折</text>
+    </view>
+  </view>
 
-    <!-- 菜单部分 -->
-    <view class="menu-container">
-      <!-- 左侧分类导航 -->
-      <scroll-view class="category-list" scroll-y>
-        <view 
-          class="category-item {{currentCategory === index ? 'active' : ''}}" 
-          wx:for="{{categories}}" 
-          wx:key="id"
-          bindtap="switchCategory"
-          data-index="{{index}}"
-        >
-          {{item.name}}
-        </view>
-      </scroll-view>
+  <!-- 菜单部分 -->
+  <view class="menu-container">
+    <!-- 左侧分类导航 -->
+    <scroll-view class="category-list" scroll-y>
+      <view 
+        class="category-item {{currentCategory === index ? 'active' : ''}}" 
+        wx:for="{{categories}}" 
+        wx:key="id"
+        bindtap="switchCategory"
+        data-index="{{index}}"
+      >
+        {{item.name}}
+      </view>
+    </scroll-view>
 
-      <!-- 右侧菜品列表 -->
-      <scroll-view class="dish-list" scroll-y>
-        <view class="dish-item" wx:for="{{dishes}}" wx:key="id">
+    <!-- 开发环境下的调试信息 -->
+    <view class="debug-info" wx:if="{{false}}">
+      <text>当前分类: {{currentCategory}}</text>
+      <text>菜品数量: {{dishes.length}}</text>
+    </view>
+    
+    <!-- 右侧菜品列表 -->
+    <scroll-view class="dish-list" scroll-y>
+      <view wx:if="{{!dishes || dishes.length === 0}}" class="no-data">
+        <text>暂无菜品数据</text>
+      </view>
+      <block wx:else>
+        <view wx:for="{{dishes}}" wx:key="id" class="dish-item">
           <image class="dish-image" src="{{item.image}}" mode="aspectFill"></image>
           <view class="dish-info">
             <text class="dish-name">{{item.name}}</text>
@@ -39,26 +57,59 @@
             <view class="dish-bottom">
               <text class="dish-price">¥{{item.price}}</text>
               <view class="dish-control">
-                <view class="minus" bindtap="minusCount" data-id="{{item.id}}">-</view>
-                <text class="count">{{item.count || 0}}</text>
+                <view class="minus" bindtap="minusCount" data-id="{{item.id}}" wx:if="{{item.count > 0}}">-</view>
+                <text class="count" wx:if="{{item.count > 0}}">{{item.count}}</text>
                 <view class="plus" bindtap="addCount" data-id="{{item.id}}">+</view>
               </view>
             </view>
           </view>
         </view>
+      </block>
+    </scroll-view>
+  </view>
+
+  <!-- 购物车详情面板 -->
+  <view class="cart-panel {{showCartPanel ? 'show' : ''}}" catchtap="hideCartPanel">
+    <view class="cart-panel-content" catchtap="stopPropagation">
+      <view class="cart-panel-header">
+        <text class="cart-panel-title">购物车</text>
+        <view class="cart-panel-clear" bindtap="clearCart">
+          <text class="clear-icon">🗑️</text>
+          <text>清空购物车</text>
+        </view>
+      </view>
+      <scroll-view class="cart-panel-list" scroll-y>
+        <block wx:for="{{categories}}" wx:for-item="category" wx:for-index="categoryIndex">
+          <block wx:for="{{allDishes[categoryIndex]}}" wx:key="id" wx:if="{{item.count > 0}}">
+            <view class="cart-panel-item">
+              <text class="cart-item-name">{{item.name}}</text>
+              <view class="cart-item-control">
+                <text class="cart-item-price">¥{{item.price}}</text>
+                <view class="dish-control">
+                  <view class="minus" bindtap="minusCount" data-id="{{item.id}}">-</view>
+                  <text class="count">{{item.count}}</text>
+                  <view class="plus" bindtap="addCount" data-id="{{item.id}}">+</view>
+                </view>
+              </view>
+            </view>
+          </block>
+        </block>
       </scroll-view>
     </view>
-
-    <!-- 购物车 -->
-    <view class="cart-bar">
-      <view class="cart-info">
-        <view class="cart-icon">
-          <image src="/images/cart.png"></image>
-          <text class="cart-count" wx:if="{{totalCount > 0}}">{{totalCount}}</text>
-        </view>
-        <text class="total-price">¥{{totalPrice}}</text>
-      </view>
-      <view class="submit-btn">去结算</view>
-    </view>
   </view>
-</scroll-view>
+
+  <!-- 购物车栏 -->
+  <view class="cart-bar {{totalCount > 0 ? 'active' : ''}}" bindtap="toggleCartPanel">
+    <view class="cart-info" catchtap="toggleCartPanel">
+      <view class="cart-icon">
+        <image src="/images/icons/cart.png"></image>
+        <text class="cart-count" wx:if="{{totalCount > 0}}">{{totalCount}}</text>
+      </view>
+      <text class="total-price">¥{{totalPrice}}</text>
+    </view>
+    <view class="submit-btn" catchtap="goToCheckout">去结算</view>
+  </view>
+
+  <!-- 遮罩层 -->
+  <view class="mask" wx:if="{{showCartPanel}}" bindtap="hideCartPanel"></view>
+</view>

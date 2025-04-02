@@ -11,6 +11,168 @@ Page({
     hasUserInfo: false,
     canIUseGetUserProfile: wx.canIUse('getUserProfile'),
     canIUseNicknameComp: wx.canIUse('input.type.nickname'),
+    // 轮播图数据
+    swiperList: [
+      { id: 1, url: '/images/swiper/1.jpg' },
+      { id: 2, url: '/images/swiper/2.jpg' },
+      { id: 3, url: '/images/swiper/3.jpg' },
+      { id: 4, url: '/images/swiper/4.jpg' }
+    ],
+    // 分类数据
+    categories: [
+      { id: 0, name: '热门推荐' },
+      { id: 1, name: '精品炒菜' },
+      { id: 2, name: '汤类' },
+      { id: 3, name: '主食' },
+      { id: 4, name: '特色小炒' }
+    ],
+    // 当前选中的分类
+    currentCategory: 0,
+    // 所有菜品数据
+    allDishes: {
+      // 热门推荐
+      0: [
+        {
+          id: 1,
+          name: '红烧肉',
+          price: 68,
+          description: '精选五花肉，红烧入味',
+          image: '/images/dishes/hongshaorou.jpg',
+          count: 0
+        },
+        {
+          id: 2,
+          name: '清炒时蔬',
+          price: 18,
+          description: '新鲜应季蔬菜',
+          image: '/images/dishes/shishu.jpg',
+          count: 0
+        },
+        {
+          id: 3,
+          name: '麻婆豆腐',
+          price: 32,
+          description: '川味十足，麻辣鲜香',
+          image: '/images/dishes/mapodoufu.jpg',
+          count: 0
+        }
+      ],
+      // 精品炒菜
+      1: [
+        {
+          id: 4,
+          name: '红焖大虾',
+          price: 88,
+          description: '新鲜大虾，红焖入味',
+          image: '/images/dishes/hongmendaxia.jpg',
+          count: 0
+        },
+        {
+          id: 5,
+          name: '爆炒三文鱼',
+          price: 76,
+          description: '新鲜三文鱼，爆炒鲜香',
+          image: '/images/dishes/sanwenyu.jpg',
+          count: 0
+        }
+      ],
+      // 汤类
+      2: [
+        {
+          id: 6,
+          name: '老母鸡炖汤',
+          price: 48,
+          description: '滋补养生，浓汤美味',
+          image: '/images/dishes/jitang.jpg',
+          count: 0
+        },
+        {
+          id: 7,
+          name: '冬阴功汤',
+          price: 45,
+          description: '泰式风味，酸辣可口',
+          image: '/images/dishes/dongyingong.jpg',
+          count: 0
+        },
+        {
+          id: 8,
+          name: '乌鸡滋补',
+          price: 58,
+          description: '乌鸡炖汤，滋补养生',
+          image: '/images/dishes/wuji.jpg',
+          count: 0
+        }
+      ],
+      // 主食
+      3: [
+        {
+          id: 9,
+          name: '东北水饺',
+          price: 28,
+          description: '现包现煮，皮薄馅大',
+          image: '/images/dishes/shuijiao.jpg',
+          count: 0
+        },
+        {
+          id: 10,
+          name: '酸辣粉',
+          price: 22,
+          description: '重庆风味，酸辣爽口',
+          image: '/images/dishes/suanlafen.jpg',
+          count: 0
+        },
+        {
+          id: 11,
+          name: '螺蛳粉',
+          price: 25,
+          description: '柳州特色，味道正宗',
+          image: '/images/dishes/luosifen.jpg',
+          count: 0
+        }
+      ],
+      // 特色小炒
+      4: [
+        {
+          id: 12,
+          name: '干炒牛河',
+          price: 36,
+          description: '粒粒分明，牛肉鲜嫩',
+          image: '/images/dishes/ganchao.jpg',
+          count: 0
+        },
+        {
+          id: 13,
+          name: '湿炒牛河',
+          price: 36,
+          description: '滑嫩可口，牛肉十足',
+          image: '/images/dishes/shichao.jpg',
+          count: 0
+        },
+        {
+          id: 14,
+          name: '芹菜牛肉',
+          price: 42,
+          description: '芹菜爽口，牛肉鲜美',
+          image: '/images/dishes/qincai.jpg',
+          count: 0
+        },
+        {
+          id: 15,
+          name: '酸菜牛肉',
+          price: 45,
+          description: '酸菜开胃，牛肉鲜嫩',
+          image: '/images/dishes/suancai.jpg',
+          count: 0
+        }
+      ]
+    },
+    // 当前显示的菜品
+    dishes: [],
+    // 购物车总数量
+    totalCount: 0,
+    // 购物车总价格
+    totalPrice: 0,
+    showCartPanel: false
   },
   bindViewTap() {
     wx.navigateTo({
@@ -46,4 +208,245 @@ Page({
       }
     })
   },
+  // 切换分类
+  switchCategory(e) {
+    const index = parseInt(e.currentTarget.dataset.index);
+    console.log('切换到分类：', index, typeof index);
+    
+    // 检查数据是否存在
+    if (!this.data.allDishes) {
+      console.error('allDishes不存在');
+      return;
+    }
+    
+    if (!this.data.allDishes[index]) {
+      console.error('该分类数据不存在：', index);
+      return;
+    }
+    
+    console.log('该分类的菜品数量：', this.data.allDishes[index].length);
+    
+    // 更新当前分类和菜品数据
+    this.setData({
+      currentCategory: index
+    });
+    
+    // 单独设置dishes，避免一次性更新过多数据
+    setTimeout(() => {
+      this.setData({
+        dishes: this.data.allDishes[index]
+      }, () => {
+        console.log('当前分类：', this.data.currentCategory);
+        console.log('当前菜品：', this.data.dishes);
+      });
+    }, 50);
+  },
+  // 添加菜品
+  addCount(e) {
+    const id = e.currentTarget.dataset.id;
+    const allDishes = this.data.allDishes;
+    const currentDishes = this.data.dishes;
+    
+    // 更新当前显示的菜品
+    const dishes = currentDishes.map(dish => {
+      if (dish.id === id) {
+        return {
+          ...dish,
+          count: (dish.count || 0) + 1
+        };
+      }
+      return dish;
+    });
+
+    // 更新所有菜品中的数量
+    Object.keys(allDishes).forEach(categoryIndex => {
+      allDishes[categoryIndex] = allDishes[categoryIndex].map(dish => {
+        if (dish.id === id) {
+          return {
+            ...dish,
+            count: (dish.count || 0) + 1
+          };
+        }
+        return dish;
+      });
+    });
+
+    this.setData({ 
+      dishes,
+      allDishes,
+      showCartPanel: false
+    });
+    this.updateCart();
+  },
+  // 减少菜品
+  minusCount(e) {
+    const id = e.currentTarget.dataset.id;
+    const allDishes = this.data.allDishes;
+    const currentDishes = this.data.dishes;
+    
+    // 更新当前显示的菜品
+    const dishes = currentDishes.map(dish => {
+      if (dish.id === id && dish.count > 0) {
+        return {
+          ...dish,
+          count: dish.count - 1
+        };
+      }
+      return dish;
+    });
+
+    // 更新所有菜品中的数量
+    Object.keys(allDishes).forEach(categoryIndex => {
+      allDishes[categoryIndex] = allDishes[categoryIndex].map(dish => {
+        if (dish.id === id && dish.count > 0) {
+          return {
+            ...dish,
+            count: dish.count - 1
+          };
+        }
+        return dish;
+      });
+    });
+
+    this.setData({ 
+      dishes,
+      allDishes
+    });
+    this.updateCart();
+  },
+  // 切换购物车面板
+  toggleCartPanel() {
+    if (this.data.totalCount > 0) {
+      this.setData({
+        showCartPanel: !this.data.showCartPanel
+      });
+    } else {
+      wx.showToast({
+        title: '购物车是空的',
+        icon: 'none'
+      });
+    }
+  },
+  // 隐藏购物车面板
+  hideCartPanel() {
+    this.setData({
+      showCartPanel: false
+    });
+  },
+  // 阻止事件冒泡
+  stopPropagation() {
+    return;
+  },
+  // 清空购物车
+  clearCart() {
+    const dishes = this.data.dishes.map(dish => ({
+      ...dish,
+      count: 0
+    }));
+    
+    this.setData({
+      dishes,
+      totalCount: 0,
+      totalPrice: '0.00',
+      showCartPanel: false
+    });
+
+    wx.showToast({
+      title: '购物车已清空',
+      icon: 'success'
+    });
+  },
+  // 去结算
+  goToCheckout() {
+    if (this.data.totalCount > 0) {
+      // 这里可以跳转到结算页面
+      wx.showToast({
+        title: '准备跳转到结算页面',
+        icon: 'none'
+      });
+    } else {
+      wx.showToast({
+        title: '请先选择商品',
+        icon: 'none'
+      });
+    }
+  },
+  // 更新购物车
+  updateCart() {
+    let totalCount = 0;
+    let totalPrice = 0;
+
+    // 遍历所有分类的菜品
+    Object.values(this.data.allDishes).forEach(categoryDishes => {
+      categoryDishes.forEach(dish => {
+        if (dish.count) {
+          totalCount += dish.count;
+          totalPrice += dish.count * dish.price;
+        }
+      });
+    });
+
+    this.setData({
+      totalCount,
+      totalPrice: totalPrice.toFixed(2)
+    });
+
+    // 如果购物车为空，自动隐藏面板
+    if (totalCount === 0) {
+      this.setData({
+        showCartPanel: false
+      });
+    }
+
+    // 保存到本地存储
+    wx.setStorageSync('cartData', {
+      allDishes: this.data.allDishes,
+      totalCount,
+      totalPrice: totalPrice.toFixed(2)
+    });
+  },
+  onLoad() {
+    // 添加调试辅助函数
+    console.log('==== 数据结构检查 ====');
+    console.log('分类列表：', this.data.categories);
+    console.log('所有菜品数据：', this.data.allDishes);
+    if (this.data.allDishes) {
+      Object.keys(this.data.allDishes).forEach(key => {
+        console.log(`分类 ${key} 的菜品数量:`, this.data.allDishes[key].length);
+      });
+    }
+    
+    // 初始化显示热门推荐分类的菜品
+    const initialDishes = this.data.allDishes[0] || [];
+    console.log('初始化菜品数据：', initialDishes);
+    
+    this.setData({
+      currentCategory: 0,
+      dishes: initialDishes
+    }, () => {
+      console.log('初始化后的菜品列表：', this.data.dishes);
+    });
+
+    // 从本地存储恢复购物车数据（如果有）
+    const cartData = wx.getStorageSync('cartData');
+    if (cartData && cartData.allDishes) {
+      console.log('恢复购物车数据');
+      this.setData({
+        allDishes: cartData.allDishes,
+        dishes: cartData.allDishes[this.data.currentCategory] || [],
+        totalCount: cartData.totalCount || 0,
+        totalPrice: cartData.totalPrice || '0.00'
+      }, () => {
+        console.log('恢复后的菜品列表：', this.data.dishes);
+      });
+    }
+  },
+  // 保存购物车数据到本地存储
+  onHide() {
+    wx.setStorageSync('cartData', {
+      allDishes: this.data.allDishes,
+      totalCount: this.data.totalCount,
+      totalPrice: this.data.totalPrice
+    });
+  }
 })

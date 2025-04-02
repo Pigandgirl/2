@@ -1,4 +1,6 @@
 {
-  "usingComponents": {
-  }
+  "navigationBarTitleText": "米萌酒家",
+  "navigationBarBackgroundColor": "#FF9E4D",
+  "navigationBarTextStyle": "white",
+  "usingComponents": {}
 }

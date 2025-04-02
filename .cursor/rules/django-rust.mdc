@@ -1,0 +1,7 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+-Django：作为主要的Web框架，处理请求、响应和业务逻辑。
+-Django REST framework：用于构建API，方便小程序前端调用。
