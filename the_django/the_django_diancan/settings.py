@@ -37,8 +37,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-     'rest_framework',          # 核心DRF
+    'rest_framework',          # 核心DRF
     'rest_framework.authtoken', # 可选：Token认证
+    'api',                     # 添加新创建的应用
 ]
 
 MIDDLEWARE = [
