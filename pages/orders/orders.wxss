@@ -1,0 +1,104 @@
+.container {
+  padding: 20rpx;
+  background: #f5f5f5;
+  min-height: 100vh;
+}
+
+.order-list {
+  width: 100%;
+}
+
+.order-item {
+  background: #ffffff;
+  border-radius: 12rpx;
+  padding: 20rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 20rpx;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+
+.order-no {
+  font-size: 28rpx;
+  color: #333;
+}
+
+.order-status {
+  font-size: 26rpx;
+}
+
+.order-status.completed {
+  color: #52c41a;
+}
+
+.order-status.pending {
+  color: #FF9E4D;
+}
+
+.order-status.cancelled {
+  color: #999;
+}
+
+.order-content {
+  padding-top: 20rpx;
+}
+
+/* 新增：竖向排列的菜品列表样式 */
+.dish-list {
+  margin: 16rpx 0;
+}
+
+.dish-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10rpx 0;
+  font-size: 28rpx;
+  color: #666;
+  border-bottom: 1rpx dashed #f0f0f0;
+}
+
+.dish-item:last-child {
+  border-bottom: none;
+}
+
+.dish-name {
+  flex: 1;
+}
+
+.dish-quantity {
+  color: #999;
+  margin-left: 20rpx;
+}
+
+.order-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx solid #f5f5f5;
+}
+
+.time {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.price {
+  font-size: 32rpx;
+  color: #FF6B4A;
+  font-weight: bold;
+}
+
+.no-order {
+  text-align: center;
+  padding: 100rpx 0;
+  color: #999;
+  font-size: 28rpx;
+}
