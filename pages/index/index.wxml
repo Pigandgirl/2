@@ -1,0 +1,64 @@
+<!--index.wxml-->
+<scroll-view class="scrollarea" scroll-y type="list">
+  <view class="container">
+    <!-- 轮播图部分 -->
+    <view class="swiper-container">
+      <swiper class="swiper" autoplay interval="5000" circular indicator-dots indicator-active-color="#FFFFFF" indicator-color="rgba(255, 255, 255, 0.6)">
+        <swiper-item wx:for="{{swiperList}}" wx:key="id">
+          <image src="{{item.url}}" mode="aspectFill"></image>
+        </swiper-item>
+      </swiper>
+      <view class="restaurant-info">
+        <image class="logo" src="/images/logo.png"></image>
+        <text class="restaurant-name">米萌酒家</text>
+      </view>
+    </view>
+
+    <!-- 菜单部分 -->
+    <view class="menu-container">
+      <!-- 左侧分类导航 -->
+      <scroll-view class="category-list" scroll-y>
+        <view 
+          class="category-item {{currentCategory === index ? 'active' : ''}}" 
+          wx:for="{{categories}}" 
+          wx:key="id"
+          bindtap="switchCategory"
+          data-index="{{index}}"
+        >
+          {{item.name}}
+        </view>
+      </scroll-view>
+
+      <!-- 右侧菜品列表 -->
+      <scroll-view class="dish-list" scroll-y>
+        <view class="dish-item" wx:for="{{dishes}}" wx:key="id">
+          <image class="dish-image" src="{{item.image}}" mode="aspectFill"></image>
+          <view class="dish-info">
+            <text class="dish-name">{{item.name}}</text>
+            <text class="dish-desc">{{item.description}}</text>
+            <view class="dish-bottom">
+              <text class="dish-price">¥{{item.price}}</text>
+              <view class="dish-control">
+                <view class="minus" bindtap="minusCount" data-id="{{item.id}}">-</view>
+                <text class="count">{{item.count || 0}}</text>
+                <view class="plus" bindtap="addCount" data-id="{{item.id}}">+</view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+
+    <!-- 购物车 -->
+    <view class="cart-bar">
+      <view class="cart-info">
+        <view class="cart-icon">
+          <image src="/images/cart.png"></image>
+          <text class="cart-count" wx:if="{{totalCount > 0}}">{{totalCount}}</text>
+        </view>
+        <text class="total-price">¥{{totalPrice}}</text>
+      </view>
+      <view class="submit-btn">去结算</view>
+    </view>
+  </view>
+</scroll-view>
